@@ -1,0 +1,154 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart River Guardian AI</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#07111f;
+    color:white;
+    text-align:center;
+    margin:0;
+    padding:20px;
+    transition:0.5s;
+}
+
+h1{
+    color:#00ff99;
+}
+
+.container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+}
+
+.card{
+    background:#172554;
+    width:250px;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 10px rgba(0,255,153,0.5);
+}
+
+.title{
+    font-size:20px;
+    margin-bottom:10px;
+}
+
+.value{
+    font-size:32px;
+    font-weight:bold;
+    color:#00ff99;
+}
+
+.status{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.footer{
+    margin-top:20px;
+    color:#cccccc;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🌊 Smart River Guardian AI</h1>
+
+<div class="container">
+
+    <div class="card">
+        <div class="title">🌡 Temperature</div>
+        <div class="value" id="temp">--</div>
+        <div>°C</div>
+    </div>
+
+    <div class="card">
+        <div class="title">💧 Turbidity</div>
+        <div class="value" id="turb">--</div>
+    </div>
+
+    <div class="card">
+        <div class="title">📏 Distance</div>
+        <div class="value" id="dist">--</div>
+        <div>cm</div>
+    </div>
+
+    <div class="card">
+        <div class="title">🌊 Water Level</div>
+        <div class="value" id="level">--</div>
+        <div>%</div>
+    </div>
+
+    <div class="card">
+        <div class="title">🚮 Status</div>
+        <div class="status" id="status">Waiting...</div>
+    </div>
+
+</div>
+
+<div class="footer">
+Smart River Guardian AI - Live Monitoring Dashboard
+</div>
+
+<script>
+
+const ESP32_IP = "192.168.4.1";
+
+function updateData()
+{
+    fetch("http://" + ESP32_IP + "/data")
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById("temp").innerHTML = data.temperature;
+        document.getElementById("turb").innerHTML = data.turbidity;
+        document.getElementById("dist").innerHTML = data.distance;
+        document.getElementById("level").innerHTML = data.level;
+
+        const statusElement = document.getElementById("status");
+
+        statusElement.innerHTML = data.status;
+
+        if(data.status === "POLLUTED WATER")
+        {
+            document.body.style.background = "#665500";
+            statusElement.style.color = "yellow";
+        }
+        else if(data.status === "WASTE DETECTED")
+        {
+            document.body.style.background = "#550000";
+            statusElement.style.color = "red";
+        }
+        else
+        {
+            document.body.style.background = "#07111f";
+            statusElement.style.color = "lime";
+        }
+
+    })
+    .catch(error => {
+
+        document.getElementById("status").innerHTML = "ESP32 Not Connected";
+
+    });
+}
+
+setInterval(updateData,1000);
+
+updateData();
+
+</script>
+
+</body>
+</html>
